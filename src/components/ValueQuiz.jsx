@@ -35,6 +35,16 @@ export default function ValueQuiz() {
         { text: 'Báo chí chính thống', value: 'news', influence: 'Tồn tại xã hội' },
         { text: 'Kinh nghiệm cá nhân', value: 'experience', influence: 'Tâm lý xã hội' }
       ]
+    },
+    {
+      id: 4,
+      question: 'Khi đối mặt với khó khăn, bạn thường làm gì?',
+      options: [
+        { text: 'Tìm sự hỗ trợ từ cộng đồng', value: 'community', influence: 'Tâm lý xã hội' },
+        { text: 'Suy nghĩ dựa trên nguyên tắc', value: 'principles', influence: 'Hệ tư tưởng' },
+        { text: 'Phân tích điều kiện thực tế', value: 'practical', influence: 'Tồn tại xã hội' },
+        { text: 'Làm theo cảm xúc hiện tại', value: 'emotion', influence: 'Tâm lý xã hội' }
+      ]
     }
   ];
 
@@ -65,6 +75,93 @@ export default function ValueQuiz() {
     return influenceCount;
   };
 
+  const getPersonalityType = (results) => {
+    const total = Object.values(results).reduce((a, b) => a + b, 0);
+    const percentages = {
+      'Tồn tại xã hội': (results['Tồn tại xã hội'] / total) * 100,
+      'Tâm lý xã hội': (results['Tâm lý xã hội'] / total) * 100,
+      'Hệ tư tưởng': (results['Hệ tư tưởng'] / total) * 100
+    };
+
+    // Determine personality type based on combinations
+    if (percentages['Tồn tại xã hội'] >= 50) {
+      return {
+        type: 'Thực tiễn - Duy vật',
+        description: 'Bạn là người thực tế, quan tâm đến điều kiện vật chất và môi trường xung quanh. Giá trị của bạn hình thành chủ yếu từ những trải nghiệm thực tế và điều kiện sống.',
+        color: '#3b82f6',
+        analysis: 'Theo triết học Mác-Lênin, bạn thuộc nhóm có ý thức xã hội chịu ảnh hưởng mạnh từ tồn tại xã hội. Điều này phản ánh mối quan hệ biện chứng giữa vật chất và ý thức.'
+      };
+    } else if (percentages['Tâm lý xã hội'] >= 50) {
+      return {
+        type: 'Cảm xúc - Xã hội',
+        description: 'Bạn nhạy cảm với xu hướng xã hội và dễ bị ảnh hưởng bởi tâm trạng tập thể. Giá trị của bạn thay đổi linh hoạt theo môi trường và mối quan hệ.',
+        color: '#10b981',
+        analysis: 'Bạn minh chứng cho tính độc lập tương đối của ý thức xã hội - dù bắt nguồn từ tồn tại xã hội nhưng có khả năng tác động trở lại thông qua tâm lý và cảm xúc tập thể.'
+      };
+    } else if (percentages['Hệ tư tưởng'] >= 50) {
+      return {
+        type: 'Lý trí - Nguyên tắc',
+        description: 'Bạn đề cao các giá trị truyền thống, nguyên tắc và hệ thống tư tưởng. Giá trị của bạn ổn định và dựa trên nền tảng đạo đức, triết lý rõ ràng.',
+        color: '#8b5cf6',
+        analysis: 'Điều này phản ánh vai trò của kiến trúc thượng tầng trong việc định hình ý thức xã hội thông qua giáo dục, văn hóa và hệ tư tưởng thống trị.'
+      };
+    } else if (percentages['Tồn tại xã hội'] > percentages['Tâm lý xã hội'] && percentages['Tồn tại xã hội'] > percentages['Hệ tư tưởng']) {
+      return {
+        type: 'Cân bằng - Thiên về Thực tiễn',
+        description: 'Bạn có sự cân bằng giữa các yếu tố nhưng nghiêng về thực tế. Bạn nhận thức rõ mối quan hệ giữa điều kiện sống và giá trị cá nhân.',
+        color: '#6366f1',
+        analysis: 'Phản ánh quan điểm duy vật biện chứng: ý thức bắt nguồn từ vật chất nhưng có tính năng động, sáng tạo trong việc cải tạo hiện thực.'
+      };
+    } else if (percentages['Tâm lý xã hội'] > percentages['Tồn tại xã hội'] && percentages['Tâm lý xã hội'] > percentages['Hệ tư tưởng']) {
+      return {
+        type: 'Cân bằng - Thiên về Cảm xúc',
+        description: 'Bạn cân bằng giữa lý trí và thực tế nhưng dễ bị chi phối bởi cảm xúc xã hội. Bạn nhạy bén với thay đổi và xu hướng mới.',
+        color: '#06b6d4',
+        analysis: 'Thể hiện tính phong phú, đa dạng của ý thức xã hội, bao gồm cả tâm lý xã hội (cảm tính) và hệ tư tưởng (lý tính).'
+      };
+    } else {
+      return {
+        type: 'Cân bằng - Thiên về Lý tưởng',
+        description: 'Bạn có sự hài hòa giữa thực tế và cảm xúc nhưng luôn giữ vững nguyên tắc. Giá trị của bạn kết hợp giữa truyền thống và hiện đại.',
+        color: '#f59e0b',
+        analysis: 'Phản ánh mối quan hệ biện chứng giữa tính kế thừa và tính đấu tranh trong sự phát triển của ý thức xã hội.'
+      };
+    }
+  };
+
+  const getSpecificAdvice = (results, personality) => {
+    const maxInfluence = Object.keys(results).reduce((a, b) => results[a] > results[b] ? a : b);
+    
+    const adviceMap = {
+      'Tồn tại xã hội': {
+        title: 'Lời khuyên cho người Thực tiễn',
+        tips: [
+          'Tiếp tục phát huy tư duy thực tế và khả năng thích nghi với điều kiện mới',
+          'Kết hợp thêm yếu tố tình cảm và nguyên tắc trong quyết định quan trọng',
+          'Nhận thức rõ hơn về ảnh hưởng của điều kiện kinh tế-xã hội đến giá trị cá nhân'
+        ]
+      },
+      'Tâm lý xã hội': {
+        title: 'Lời khuyên cho người Cảm xúc',
+        tips: [
+          'Phát huy khả năng đồng cảm và thấu hiểu xu hướng xã hội',
+          'Cân bằng giữa cảm xúc tập thể và lập trường cá nhân',
+          'Nhận diện và vượt qua hiệu ứng đám đông trong quyết định quan trọng'
+        ]
+      },
+      'Hệ tư tưởng': {
+        title: 'Lời khuyên cho người Nguyên tắc',
+        tips: [
+          'Duy trì tính nguyên tắc và hệ giá trị vững chắc',
+          'Linh hoạt hơn trong việc tiếp nhận quan điểm mới',
+          'Kết nối nguyên tắc với thực tiễn cuộc sống đang thay đổi'
+        ]
+      }
+    };
+
+    return adviceMap[maxInfluence] || adviceMap['Tồn tại xã hội'];
+  };
+
   const resetQuiz = () => {
     setCurrentQuestion(0);
     setAnswers([]);
@@ -73,7 +170,8 @@ export default function ValueQuiz() {
 
   if (showResult) {
     const results = calculateResults();
-    const mainInfluence = Object.keys(results).reduce((a, b) => results[a] > results[b] ? a : b);
+    const personality = getPersonalityType(results);
+    const advice = getSpecificAdvice(results, personality);
 
     return (
       <div style={{
@@ -81,7 +179,7 @@ export default function ValueQuiz() {
         borderRadius: '1rem',
         padding: '2rem',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        maxWidth: '600px',
+        maxWidth: '700px',
         margin: '0 auto'
       }}>
         <h2 style={{ 
@@ -94,74 +192,118 @@ export default function ValueQuiz() {
           Kết quả Phân tích Giá trị
         </h2>
         
+        {/* Personality Type */}
         <div style={{ marginBottom: '2rem' }}>
-          <h3 style={{ color: '#374151', marginBottom: '1rem' }}>Ảnh hưởng chính:</h3>
           <div style={{
-            background: mainInfluence === 'Tồn tại xã hội' ? '#dbeafe' : 
-                       mainInfluence === 'Tâm lý xã hội' ? '#dcfce7' : '#f3e8ff',
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            borderLeft: '4px solid ' + (
-              mainInfluence === 'Tồn tại xã hội' ? '#3b82f6' : 
-              mainInfluence === 'Tâm lý xã hội' ? '#10b981' : '#8b5cf6'
-            )
+            background: personality.color + '20',
+            border: '2px solid' + personality.color,
+            padding: '1.5rem',
+            borderRadius: '0.75rem',
+            textAlign: 'center'
           }}>
-            <h4 style={{ 
-              color: mainInfluence === 'Tồn tại xã hội' ? '#1e40af' : 
-                     mainInfluence === 'Tâm lý xã hội' ? '#065f46' : '#5b21b6',
+            <h3 style={{ 
+              color: personality.color,
+              fontSize: '1.25rem',
+              fontWeight: 'bold',
               marginBottom: '0.5rem'
             }}>
-              {mainInfluence}
-            </h4>
-            <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>
-              {mainInfluence === 'Tồn tại xã hội' 
-                ? 'Giá trị của bạn chịu ảnh hưởng mạnh từ điều kiện kinh tế, công nghệ và môi trường xung quanh.'
-                : mainInfluence === 'Tâm lý xã hội'
-                ? 'Giá trị của bạn hình thành chủ yếu từ cảm xúc, xu hướng và tâm lý xã hội.'
-                : 'Giá trị của bạn được định hình bởi hệ thống giáo dục, văn hóa và tư tưởng.'
-              }
+              {personality.type}
+            </h3>
+            <p style={{ 
+              color: '#6b7280', 
+              lineHeight: '1.6',
+              marginBottom: '1rem'
+            }}>
+              {personality.description}
             </p>
+            <div style={{
+              background: '#f8fafc',
+              padding: '1rem',
+              borderRadius: '0.5rem',
+              borderLeft: '3px solid' + personality.color
+            }}>
+              <p style={{ 
+                color: '#4b5563', 
+                fontSize: '0.9rem',
+                fontStyle: 'italic',
+                margin: 0,
+                lineHeight: '1.5'
+              }}>
+                {personality.analysis}
+              </p>
+            </div>
           </div>
         </div>
 
+        {/* Detailed Analysis */}
         <div style={{ marginBottom: '2rem' }}>
-          <h3 style={{ color: '#374151', marginBottom: '1rem' }}>Phân tích chi tiết:</h3>
-          {Object.entries(results).map(([influence, count]) => (
-            <div key={influence} style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '0.5rem 0',
-              borderBottom: '1px solid #e5e7eb'
-            }}>
-              <span style={{ color: '#4b5563' }}>{influence}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <h3 style={{ color: '#374151', marginBottom: '1rem', fontSize: '1.1rem' }}>
+            Phân tích chi tiết ảnh hưởng:
+          </h3>
+          {Object.entries(results).map(([influence, count]) => {
+            const percentage = (count / questions.length * 100).toFixed(0);
+            const color = influence === 'Tồn tại xã hội' ? '#3b82f6' : 
+                         influence === 'Tâm lý xã hội' ? '#10b981' : '#8b5cf6';
+            
+            return (
+              <div key={influence} style={{
+                marginBottom: '1rem'
+              }}>
                 <div style={{
-                  width: '100px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '0.5rem'
+                }}>
+                  <span style={{ color: '#4b5563', fontWeight: '500' }}>{influence}</span>
+                  <span style={{ color: color, fontWeight: '600' }}>{percentage}%</span>
+                </div>
+                <div style={{
+                  width: '100%',
                   height: '8px',
                   background: '#e5e7eb',
                   borderRadius: '4px',
                   overflow: 'hidden'
                 }}>
                   <div style={{
-                    width: (count / questions.length * 100) + '%',
+                    width: percentage + '%',
                     height: '100%',
-                    background: influence === 'Tồn tại xã hội' ? '#3b82f6' : 
-                               influence === 'Tâm lý xã hội' ? '#10b981' : '#8b5cf6',
-                    transition: 'width 0.5s ease'
+                    background: color,
+                    transition: 'width 0.5s ease',
+                    borderRadius: '4px'
                   }}></div>
                 </div>
-                <span style={{ 
-                  color: '#6b7280', 
-                  fontSize: '0.9rem',
-                  minWidth: '30px',
-                  textAlign: 'right'
-                }}>
-                  {count}/{questions.length}
-                </span>
               </div>
-            </div>
-          ))}
+            );
+          })}
+        </div>
+
+        {/* Personalized Advice */}
+        <div style={{
+          background: '#f0f9ff',
+          padding: '1.5rem',
+          borderRadius: '0.75rem',
+          border: '1px solid #bae6fd'
+        }}>
+          <h4 style={{ 
+            color: '#0369a1',
+            marginBottom: '1rem',
+            fontSize: '1.1rem'
+          }}>
+            {advice.title}
+          </h4>
+          <ul style={{ 
+            margin: 0, 
+            paddingLeft: '1.5rem',
+            color: '#4b5563',
+            lineHeight: '1.6'
+          }}>
+            {advice.tips.map((tip, index) => (
+              <li key={index} style={{ marginBottom: '0.5rem' }}>
+                {tip}
+              </li>
+            ))}
+          </ul>
         </div>
 
         <button 
@@ -175,7 +317,8 @@ export default function ValueQuiz() {
             fontSize: '1rem',
             cursor: 'pointer',
             width: '100%',
-            fontWeight: '500'
+            fontWeight: '500',
+            marginTop: '2rem'
           }}
         >
           Làm lại bài trắc nghiệm
@@ -271,7 +414,7 @@ export default function ValueQuiz() {
           margin: 0,
           textAlign: 'center'
         }}>
-          💡 Bài trắc nghiệm giúp bạn hiểu rõ hơn về các yếu tố xã hội đang định hình giá trị cá nhân
+          💡 Bài trắc nghiệm phân tích mối quan hệ giữa tồn tại xã hội và ý thức xã hội trong việc hình thành giá trị cá nhân
         </p>
       </div>
     </div>
